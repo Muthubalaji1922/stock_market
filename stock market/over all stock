@@ -1,0 +1,24 @@
+#The stock ticker symbol of the company, used to uniquely identify it in the stock market Date : The date on which the stock market data was recorded or reported. It represents the trading day for which the stock close/last : The closing price or the last traded price of the company's stock on the given date. It represents the final price at which Volume : The total number of shares of the company's stock traded on the given date. It indicates the level of investor interest Open : The opening price of the company's stock on the given date. It is the price at which the first trade occurred during the High : The highest price at which the company's stock traded on the given date. It indicates the highest price reached Low : The lowest price at which the company's stock traded on the given date. It indicates the lowest price reached
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+df = pd.read_csv('cleaned_data.csv')
+df['Date'] = pd.to_datetime(df['Date'])
+df = df.sort_values(by=['Company', 'Date'])
+summary = df.groupby('Company').agg(
+    Start_Price=('Close/Last', lambda x: x.iloc[0]),
+    End_Price=('Close/Last', lambda x: x.iloc[-1]),
+    Avg_Volume=('Volume', 'mean')
+).reset_index()
+summary['Price_Growth_%'] = ((summary['End_Price'] - summary['Start_Price']) / summary['Start_Price']) * 100
+top_performers = summary.sort_values(by='Price_Growth_%', ascending=False)
+plt.figure(figsize=(14, 6))
+sns.set(style="whitegrid")
+bar_plot = sns.barplot(data=top_performers, x='Company', y='Price_Growth_%', palette='viridis')
+plt.title('Top Performing Companies by Stock Price Growth')
+plt.xlabel('Company')
+plt.ylabel('Price Growth (%)')
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.show()

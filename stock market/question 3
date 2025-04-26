@@ -1,0 +1,29 @@
+#3)Top Performers Identification: Identify the top-performing companies based on their stock price growth and trading volumes over a specific time period.
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+df = pd.read_csv('cleaned_data.csv')
+df.columns = [col.strip() for col in df.columns]
+df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
+price_columns = ['Close/Last', 'Open', 'High', 'Low']
+for col in price_columns:
+    df[col] = df[col].replace({'\$': ''}, regex=True).astype(float)
+
+df.rename(columns={'Close/Last': 'Price'}, inplace=True)
+print(df.head())
+performance = df.groupby('Company').agg(
+    Initial_Price=('Price', 'first'),
+    Final_Price=('Price', 'last'),
+    Avg_Volume=('Volume', 'mean')
+)
+performance['Price_Growth'] = ((performance['Final_Price'] - performance['Initial_Price']) / performance['Initial_Price']) * 100
+performance.sort_values(by=['Price_Growth', 'Avg_Volume'], ascending=[False, False], inplace=True)
+sns.set(style="whitegrid")
+plt.figure(figsize=(10, 6))
+sns.barplot(x=performance.index, y=performance['Price_Growth'], palette="viridis")
+plt.title('Top Performers by Price Growth')
+plt.ylabel('Price Growth (%)')
+plt.xlabel('Company')
+plt.show()

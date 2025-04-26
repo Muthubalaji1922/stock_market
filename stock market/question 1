@@ -1,0 +1,41 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+df=pd.read_csv("cleaned_data.csv")
+df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
+price_columns = ['Close/Last', 'Open', 'High', 'Low']
+for col in price_columns:
+    df[col] = df[col].replace({'\$': ''}, regex=True).astype(float)
+sns.set_style("darkgrid")
+companies = df['Company'].unique()
+plt.figure(figsize=(12, 6))
+for company in companies:
+    subset = df[df['Company'] == company]
+    plt.plot(subset['Date'], subset['Close/Last'], label=company)
+
+plt.xlabel("Date")
+plt.ylabel("Closing Price ($)")
+plt.title("Stock Price Trends Over Time")
+plt.legend()
+plt.show()
+plt.figure(figsize=(12, 6))
+for company in companies:
+    subset = df[df['Company'] == company]
+    plt.plot(subset['Date'], subset['Volume'], label=company)
+
+plt.xlabel("Date")
+plt.ylabel("Trading Volume")
+plt.title("Stock Trading Volume Trends Over Time")
+plt.legend()
+plt.show()
+
+df_pivot = df.pivot_table(index=df['Date'].dt.strftime('%Y-%m'),
+                          columns='Company', values='Close/Last', aggfunc='mean')
+
+
+plt.figure(figsize=(12, 6))
+sns.heatmap(df_pivot, cmap='coolwarm', annot=False, linewidths=0.5, cbar=True)
+plt.xlabel("Company")
+plt.ylabel("Year-Month")
+plt.title("Stock Price Heatmap (Monthly Average Closing Prices)")
+plt.show()

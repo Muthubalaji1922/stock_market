@@ -1,0 +1,27 @@
+#4)Market Sentiment Analysis: Perform sentiment analysis using Natural Language Processing (NLP) techniques on news headlines related to each company. Determine whether positive or negative news impacts the stock prices and volumes.
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Sample DataFrame 
+data = {
+    'Company': ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'TSLA'],
+    'Start_Price': [150, 280, 100, 120, 600],
+    'End_Price': [180, 300, 130, 150, 900],
+    'Average_Volume': [100_000_000, 80_000_000, 60_000_000, 70_000_000, 110_000_000]
+}
+
+df = pd.DataFrame(data)
+df['Price_Growth_%'] = ((df['End_Price'] - df['Start_Price']) / df['Start_Price']) * 100
+df_sorted = df.sort_values(by='Price_Growth_%', ascending=False)
+sns.set(style="whitegrid")
+fig, ax1 = plt.subplots(figsize=(12, 6))
+sns.barplot(x='Company', y='Price_Growth_%', data=df_sorted, palette='Blues_d', ax=ax1)
+ax1.set_ylabel('Price Growth (%)')
+ax1.set_title('Top Performing Companies: Price Growth & Average Volume')
+ax2 = ax1.twinx()
+sns.lineplot(x='Company', y='Average_Volume', data=df_sorted, sort=False, color='red', marker='o', ax=ax2)
+ax2.set_ylabel('Average Trading Volume')
+plt.tight_layout()
+plt.show()

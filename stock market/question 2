@@ -1,0 +1,19 @@
+#2.Correlation Analysis: Investigate the correlations between the closing prices of different companies to identify potential relationships. Calculate correlation coefficients and visualize correlation matrices.
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+df = pd.read_csv("cleaned_data.csv")
+df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
+price_columns = ['Close/Last', 'Open', 'High', 'Low']
+for col in price_columns:
+    df[col] = df[col].replace({'\$': ''}, regex=True).astype(float)
+sns.set_style("darkgrid")
+closing_prices = df.pivot_table(index='Date', columns='Company', values='Close/Last')
+correlation_matrix = closing_prices.corr()
+plt.figure(figsize=(10, 8))
+sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', fmt=".2f", linewidths=.5)
+plt.title('Correlation Matrix of Closing Prices')
+plt.show()
+print("Correlation Matrix:")
+print(correlation_matrix)
